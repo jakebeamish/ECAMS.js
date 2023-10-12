@@ -17,8 +17,9 @@ let options = {
 
 	"Stroke weight": 1,
 	"Points": false,
-	"Rects": true,
-	"Ellipses": false
+	"Rects": false,
+	"Ellipses": false,
+	"Square march": true,
 }
 
 // let cellWidth = options["Cell width"];
@@ -61,8 +62,9 @@ function setup() {
 	let drawFolder = gui.addFolder("Draw")
 	drawFolder.add(options, "Stroke weight", 1, 10);
 	drawFolder.add(options, "Points");
-	drawFolder.add(options, "Rects")
-	drawFolder.add(options, "Ellipses")
+	drawFolder.add(options, "Rects");
+	drawFolder.add(options, "Ellipses");
+	drawFolder.add(options, "Square march");
 
 
 	cells = [];
@@ -124,7 +126,7 @@ function generateCells(cells, ruleset) {
 			let right = (i + arrayWidth() + 1) % arrayWidth();
 			cells[j + 1][i] = rules(cells[j][left], cells[j][i], cells[j][right], ruleset);
 			if (options["Second order"] && j > 1) {
-				cells[j + 1][i] = cells[j + 1][i] ^ cells[j-1][i];
+				cells[j + 1][i] = cells[j + 1][i] ^ cells[j - 1][i];
 			}
 		}
 	}
@@ -137,7 +139,7 @@ function generateCells(cells, ruleset) {
 			let right = (i + arrayWidth() + 1) % arrayWidth();
 			next[i] = rules(cells[j][left], cells[j][i], cells[j][right], ruleset);
 			if (options["Second order"]) {
-				next[i] = next[i] ^ cells[j-1][i];
+				next[i] = next[i] ^ cells[j - 1][i];
 			}
 		}
 		cells.shift();
@@ -174,6 +176,14 @@ function rules(a, b, c, ruleset) {
 	else return 0;
 }
 
+function getState(a, b, c, d) {
+	return a * 8 + b * 4 + c * 2 + d * 1;
+}
+
+function vLine(a, b) {
+	line(a.x, a.y, b.x, b.y);
+}
+
 
 function drawCells(cells) {
 	strokeWeight(options["Stroke weight"]);
@@ -198,7 +208,79 @@ function drawCells(cells) {
 
 				if (options["Ellipses"]) {
 					ellipse(x, y, cellWidth(), cellHeight());
-				   }
+				}
+			}
+		}
+	}
+
+	if (options["Square march"]) {
+		let next = [];
+		for (let i = 0; i < arrayWidth(); i++) {
+			next.push(0);
+		}
+		cells.unshift(next);
+		for (let j = 0; j < arrayHeight() - 1; j++) {
+			for (let i = 0; i < arrayWidth() - 1; i++) {
+				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + i * cellWidth();
+				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + j * cellHeight();
+
+				let a = createVector(x + cellWidth() * 0.5, y);
+				let b = createVector(x + cellWidth(), y + cellHeight() * 0.5);
+				let c = createVector(x + cellWidth() * 0.5, y + cellHeight());
+				let d = createVector(x, y + cellHeight() * 0.5);
+
+				let state = getState(cells[j][i], cells[j][i + 1], cells[j + 1][i + 1], cells[j + 1][i]);
+				// point(x, y);
+
+				switch (state) {
+					case 0:
+						// line(d, b);
+						break;
+					case 1:
+						vLine(c, d);
+						break;
+					case 2:
+						vLine(b, c);
+						break;
+					case 3:
+						vLine(b, d);
+						break;
+					case 4:
+						vLine(a, b);
+						break;
+					case 5:
+						vLine(a, d);
+						vLine(b, c);
+						break;
+					case 6:
+						vLine(a, c);
+						break;
+					case 7:
+						vLine(a, d);
+						break;
+					case 8:
+						vLine(a, d);
+						break;
+					case 9:
+						vLine(a, c);
+						break;
+					case 10:
+						vLine(a, b);
+						vLine(c, d);
+						break;
+					case 11:
+						vLine(a, b);
+						break;
+					case 12:
+						vLine(b, d);
+						break;
+					case 13:
+						vLine(b, c);
+						break;
+					case 14:
+						vLine(c, d);
+						break;
+				}
 			}
 		}
 	}
