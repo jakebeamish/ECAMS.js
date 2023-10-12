@@ -17,7 +17,8 @@ let options = {
 
 	"Stroke weight": 1,
 	"Points": false,
-	"Rects": true
+	"Rects": true,
+	"Ellipses": false
 }
 
 // let cellWidth = options["Cell width"];
@@ -61,6 +62,7 @@ function setup() {
 	drawFolder.add(options, "Stroke weight", 1, 10);
 	drawFolder.add(options, "Points");
 	drawFolder.add(options, "Rects")
+	drawFolder.add(options, "Ellipses")
 
 
 	cells = [];
@@ -193,6 +195,10 @@ function drawCells(cells) {
 					rectMode(CENTER);
 					rect(x, y, cellWidth(), cellHeight());
 				}
+
+				if (options["Ellipses"]) {
+					ellipse(x, y, cellWidth(), cellHeight());
+				   }
 			}
 		}
 	}
