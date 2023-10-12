@@ -1,15 +1,18 @@
 let options = {
-	"Rule": 101,
+	"Rule": 105,
 	"Seed": 23,
 	"Offset": 0,
-	"Rotate": 100,
+	"Rotate": 0,
 
-	"Impulse": true,
+	"Impulse": false,
+	"Random": true,
+	"Random amount": 0.5,
+	// "Scroll": true,
 
-	"Cell width": 5,
-	"Cell height": 5,
-	"Array width": 100,
-	"Array height": 150,
+	"Cell width": 4,
+	"Cell height": 4,
+	"Array width": 300,
+	"Array height": 200,
 
 	"Stroke weight": 1,
 	"Points": false,
@@ -33,18 +36,24 @@ const gui = new dat.GUI();
 function setup() {
 	createCanvas(windowWidth, windowHeight);
 
-	gui.add(options, "Rule", 0, 255, 1);
-	gui.add(options, "Seed", 0, 9999, 1);
-	gui.add(options, "Offset", 0, 999, 1);
-	gui.add(options, "Rotate", 0, 999, 1)
 
-	gui.add(options, "Impulse");
+
+	let setupFolder = gui.addFolder("Setup");
+	setupFolder.add(options, "Rule", 0, 255, 1);
+	setupFolder.add(options, "Seed", 0, 9999, 1);
+	setupFolder.add(options, "Offset", 0, 999, 1);
+	setupFolder.add(options, "Rotate", 0, 999, 1)
+	// gui.add(options, "Scroll");
+	setupFolder.add(options, "Impulse");
+	setupFolder.add(options, "Random");
+	setupFolder.add(options, "Random amount", 0, 1);
+
 
 	let sizeFolder = gui.addFolder("Size")
-	sizeFolder.add(options, "Cell width", 1, 20);
-	sizeFolder.add(options, "Cell height", 1, 20);
-	sizeFolder.add(options, "Array width", 1, 100, 1);
-	sizeFolder.add(options, "Array height", 1, 100, 1);
+	sizeFolder.add(options, "Cell width", 1, 20, 1);
+	sizeFolder.add(options, "Cell height", 1, 20, 1);
+	sizeFolder.add(options, "Array width", 1, 1000, 1);
+	sizeFolder.add(options, "Array height", 1, 1000, 1);
 
 	let drawFolder = gui.addFolder("Draw")
 	drawFolder.add(options, "Stroke weight", 1, 10);
@@ -65,6 +74,7 @@ function draw() {
 	let ruleset = binaryArray(options["Rule"]);
 
 	seedCells(cells);
+
 	generateCells(cells, ruleset);
 
 	background(255);
@@ -74,8 +84,26 @@ function draw() {
 function seedCells(cells) {
 	cells[0] = [];
 	for (let i = 0; i < arrayWidth(); i++) {
-		cells[0][i] = floor(random(2));
+		cells[0][i] = 0;
 	}
+
+
+	if (options["Impulse"]) {
+		for (let i = 0; i < arrayWidth(); i++) {
+			// let middle = floor(arrayWidth());
+			cells[0][i] = 0;
+			let middle = arrayWidth() * 0.5;
+			cells[0][middle] = 1;
+		}
+	}
+
+	if (options["Random"]) {
+		for (let i = 0; i < options["Random amount"] * options["Random amount"] * arrayWidth(); i++) {
+			let x = floor(random(arrayWidth()));
+			cells[0][x] = 1;
+		}
+	}
+
 	for (let j = 1; j < arrayHeight(); j++) {
 		cells[j] = [];
 		for (let i = 0; i < arrayWidth(); i++) {
@@ -95,7 +123,6 @@ function generateCells(cells, ruleset) {
 	}
 
 	for (let delta = 0; delta < options["Offset"]; delta++) {
-
 		let next = [];
 		let j = arrayHeight() - 1;
 		for (let i = 0; i < arrayWidth(); i++) {
@@ -104,17 +131,17 @@ function generateCells(cells, ruleset) {
 			next[i] = rules(cells[j][left], cells[j][i], cells[j][right], ruleset);
 		}
 		cells.shift();
-
 		cells.push(next);
 	}
 
 
-	for (let j = 0; j < arrayHeight(); j++) {
 
-	for (let rotate = 0; rotate < options["Rotate"]; rotate++) {
-		let last = cells[j].pop();
-		cells[j].unshift(last);
-	}
+
+	for (let j = 0; j < arrayHeight(); j++) {
+		for (let rotate = 0; rotate < options["Rotate"]; rotate++) {
+			let last = cells[j].pop();
+			cells[j].unshift(last);
+		}
 	}
 }
 
