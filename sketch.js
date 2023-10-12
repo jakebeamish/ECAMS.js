@@ -1,17 +1,18 @@
 let options = {
-	"Rule": 105,
+	"Rule": 22,
+
+	"Second order": true,
 	"Seed": 23,
 	"Offset": 0,
 	"Rotate": 0,
 
-	"Impulse": false,
+	"Impulse": true,
 	"Random": true,
 	"Random amount": 0.5,
-	// "Scroll": true,
 
 	"Cell width": 4,
 	"Cell height": 4,
-	"Array width": 300,
+	"Array width": 200,
 	"Array height": 200,
 
 	"Stroke weight": 1,
@@ -40,6 +41,7 @@ function setup() {
 
 	let setupFolder = gui.addFolder("Setup");
 	setupFolder.add(options, "Rule", 0, 255, 1);
+	setupFolder.add(options, "Second order");
 	setupFolder.add(options, "Seed", 0, 9999, 1);
 	setupFolder.add(options, "Offset", 0, 999, 1);
 	setupFolder.add(options, "Rotate", 0, 999, 1)
@@ -92,14 +94,14 @@ function seedCells(cells) {
 		for (let i = 0; i < arrayWidth(); i++) {
 			// let middle = floor(arrayWidth());
 			cells[0][i] = 0;
-			let middle = arrayWidth() * 0.5;
+			let middle = floor(arrayWidth() * 0.5);
 			cells[0][middle] = 1;
 		}
 	}
 
 	if (options["Random"]) {
 		for (let i = 0; i < options["Random amount"] * options["Random amount"] * arrayWidth(); i++) {
-			let x = floor(random(arrayWidth()));
+			let x = floor(random(arrayWidth() + 1));
 			cells[0][x] = 1;
 		}
 	}
@@ -119,6 +121,9 @@ function generateCells(cells, ruleset) {
 			let left = (i + arrayWidth() - 1) % arrayWidth();
 			let right = (i + arrayWidth() + 1) % arrayWidth();
 			cells[j + 1][i] = rules(cells[j][left], cells[j][i], cells[j][right], ruleset);
+			if (options["Second order"] && j > 1) {
+				cells[j + 1][i] = cells[j + 1][i] ^ cells[j-1][i];
+			}
 		}
 	}
 
@@ -129,6 +134,9 @@ function generateCells(cells, ruleset) {
 			let left = (i + arrayWidth() - 1) % arrayWidth();
 			let right = (i + arrayWidth() + 1) % arrayWidth();
 			next[i] = rules(cells[j][left], cells[j][i], cells[j][right], ruleset);
+			if (options["Second order"]) {
+				next[i] = next[i] ^ cells[j-1][i];
+			}
 		}
 		cells.shift();
 		cells.push(next);
