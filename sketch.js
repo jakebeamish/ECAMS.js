@@ -7,7 +7,7 @@ let options = {
 	"Rotate": 0,
 
 	"Impulse": true,
-	"Random": true,
+	"Random": false,
 	"Random amount": 0.5,
 
 	"Cell width": 4,
@@ -49,8 +49,8 @@ function setup() {
 	setupFolder.add(options, "Rotate", 0, 999, 1).listen();
 	// gui.add(options, "Scroll");
 	setupFolder.add(options, "Impulse").listen();
-	setupFolder.add(options, "Random");
-	setupFolder.add(options, "Random amount", 0, 1);
+	setupFolder.add(options, "Random").listen();
+	setupFolder.add(options, "Random amount", 0, 1).listen();
 
 
 	let sizeFolder = gui.addFolder("Size")
@@ -230,6 +230,14 @@ function keyPressed() {
 	if (keyCode === 73) {
 		// 'i'
 		options["Impulse"] = !options["Impulse"];
+		options["Random"] = !options["Random"];
+	}
+	if (keyCode === 188 && options["Random amount"] > 0.05) {
+		// ','
+		options["Random amount"] -= 0.05;
+	}
+	if (keyCode === 190 && options["Random amount"] < 0.95) {
+		options["Random amount"] += 0.05;
 	}
 }
 
