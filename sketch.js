@@ -45,8 +45,8 @@ function setup() {
 	setupFolder.add(options, "Rule", 0, 255, 1);
 	setupFolder.add(options, "Second order");
 	setupFolder.add(options, "Seed", 0, 9999, 1);
-	setupFolder.add(options, "Offset", 0, 999, 1);
-	setupFolder.add(options, "Rotate", 0, 999, 1)
+	setupFolder.add(options, "Offset", 0, 999, 1).listen();
+	setupFolder.add(options, "Rotate", 0, 999, 1).listen();
 	// gui.add(options, "Scroll");
 	setupFolder.add(options, "Impulse");
 	setupFolder.add(options, "Random");
@@ -75,6 +75,7 @@ function setup() {
 }
 
 function draw() {
+	// gui.refresh();
 	cells = [];
 	randomSeed(options["Seed"]);
 	let ruleset = binaryArray(options["Rule"]);
@@ -150,9 +151,14 @@ function generateCells(cells, ruleset) {
 
 
 	for (let j = 0; j < arrayHeight(); j++) {
-		for (let rotate = 0; rotate < options["Rotate"]; rotate++) {
-			let last = cells[j].pop();
-			cells[j].unshift(last);
+		for (let rotate = 0; rotate < Math.abs(options["Rotate"]); rotate++) {
+			if (options["Rotate"] < 0) {
+				let last = cells[j].pop();
+				cells[j].unshift(last);
+			} else if (options["Rotate"] > 0) {
+				let first = cells[j].shift();
+				cells[j].push(first);
+			}
 		}
 	}
 }
@@ -182,6 +188,21 @@ function getState(a, b, c, d) {
 
 function vLine(a, b) {
 	line(a.x, a.y, b.x, b.y);
+}
+
+function keyPressed() {
+	if (keyCode === RIGHT_ARROW) {
+		options["Rotate"]++;
+	}
+	if (keyCode === LEFT_ARROW) {
+		options["Rotate"]--;
+	}
+	if (keyCode === DOWN_ARROW) {
+		options["Offset"]++;
+	}
+	if (keyCode === UP_ARROW && options["Offset"] > 0) {
+		options["Offset"]--;
+	}
 }
 
 
