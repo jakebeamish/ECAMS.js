@@ -42,13 +42,13 @@ function setup() {
 
 
 	let setupFolder = gui.addFolder("Setup");
-	setupFolder.add(options, "Rule", 0, 255, 1);
-	setupFolder.add(options, "Second order");
-	setupFolder.add(options, "Seed", 0, 9999, 1);
+	setupFolder.add(options, "Rule", 0, 255, 1).listen();
+	setupFolder.add(options, "Second order").listen();
+	setupFolder.add(options, "Seed", 0, 9999, 1).listen();
 	setupFolder.add(options, "Offset", 0, 999, 1).listen();
 	setupFolder.add(options, "Rotate", 0, 999, 1).listen();
 	// gui.add(options, "Scroll");
-	setupFolder.add(options, "Impulse");
+	setupFolder.add(options, "Impulse").listen();
 	setupFolder.add(options, "Random");
 	setupFolder.add(options, "Random amount", 0, 1);
 
@@ -61,10 +61,10 @@ function setup() {
 
 	let drawFolder = gui.addFolder("Draw")
 	drawFolder.add(options, "Stroke weight", 1, 10);
-	drawFolder.add(options, "Points");
-	drawFolder.add(options, "Rects");
-	drawFolder.add(options, "Ellipses");
-	drawFolder.add(options, "Square march");
+	drawFolder.add(options, "Points").listen();
+	drawFolder.add(options, "Rects").listen();
+	drawFolder.add(options, "Ellipses").listen();
+	drawFolder.add(options, "Square march").listen();
 
 
 	cells = [];
@@ -203,6 +203,34 @@ function keyPressed() {
 	if (keyCode === UP_ARROW && options["Offset"] > 0) {
 		options["Offset"]--;
 	}
+	if (keyCode === 83) {
+		// 'S'
+		options["Seed"] = floor(random(10000));
+	}
+	if (keyCode === 50) {
+		// '2'
+		options["Second order"] = !options["Second order"];
+	}
+	if (keyCode === 81) {
+		// 'q'
+		options["Square march"] = !options["Square march"];
+	}
+	if (keyCode === 80) {
+		// 'p'
+		options["Points"] = !options["Points"];
+	}
+	if (keyCode === 69) {
+		// 'e'
+		options["Ellipses"] = !options["Ellipses"];
+	}
+	if (keyCode === 82) {
+		// 'r'
+		options["Rects"] = !options["Rects"];
+	}
+	if (keyCode === 73) {
+		// 'i'
+		options["Impulse"] = !options["Impulse"];
+	}
 }
 
 
@@ -251,7 +279,6 @@ function drawCells(cells) {
 				let d = createVector(x, y + cellHeight() * 0.5);
 
 				let state = getState(cells[j][i], cells[j][i + 1], cells[j + 1][i + 1], cells[j + 1][i]);
-				// point(x, y);
 
 				switch (state) {
 					case 0:
