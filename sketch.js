@@ -1,20 +1,16 @@
 let options = {
 	"Rule": 22,
-
 	"Second order": true,
 	"Seed": 23,
 	"Offset": 0,
 	"Rotate": 0,
-
-	"Impulse": true,
-	"Random": false,
-	"Random amount": 0.5,
-
+	"Impulse": false,
+	"Random": true,
+	"Random amount": 0.3,
 	"Cell width": 4,
 	"Cell height": 4,
 	"Array width": 200,
 	"Array height": 200,
-
 	"Stroke weight": 1,
 	"Points": false,
 	"Rects": false,
@@ -22,10 +18,11 @@ let options = {
 	"Square march": true,
 }
 
-// let cellWidth = options["Cell width"];
-// let cellHeight = options["Cell height"];
-// let arrayWidth = options["Array width"];
-// let arrayHeight = options["Array height"];
+function filename() {
+
+return `rule${options["Rule"]}${options["Second order"]? "R" : ""}_seed${options["Seed"]}_offset${options["Offset"]}_rotate${options["Rotate"]}_${options["Impulse"] ? "I" : "R:" + options["Random amount"]}_${options["Cell width"]}x${options["Cell height"]}_${options["Array width"]}x${options["Array height"]}_${options["Points"] ? "points_" : ""}${options["Rects"] ? "rects_" : ""}${options["Ellipses"] ? "ellipses_" : ""}${options["Square march"] ? "square_marched" : ""}`;
+
+}
 
 const cellWidth = () => options["Cell width"];
 const cellHeight = () => options["Cell height"];
@@ -37,9 +34,7 @@ let cells = [];
 const gui = new dat.GUI();
 
 function setup() {
-	createCanvas(windowWidth, windowHeight);
-
-
+	createCanvas(windowWidth, windowHeight, SVG);
 
 	let setupFolder = gui.addFolder("Setup");
 	setupFolder.add(options, "Rule", 0, 255, 1).listen();
@@ -47,7 +42,6 @@ function setup() {
 	setupFolder.add(options, "Seed", 0, 9999, 1).listen();
 	setupFolder.add(options, "Offset", 0, 999, 1).listen();
 	setupFolder.add(options, "Rotate", 0, 999, 1).listen();
-	// gui.add(options, "Scroll");
 	setupFolder.add(options, "Impulse").listen();
 	setupFolder.add(options, "Random").listen();
 	setupFolder.add(options, "Random amount", 0, 1).listen();
@@ -66,25 +60,18 @@ function setup() {
 	drawFolder.add(options, "Ellipses").listen();
 	drawFolder.add(options, "Square march").listen();
 
-
 	cells = [];
-
-
-
-
 }
 
 function draw() {
-	// gui.refresh();
+	clear();
+	// page.drawingContext.__clearCanvas();
+	background(255);
 	cells = [];
 	randomSeed(options["Seed"]);
 	let ruleset = binaryArray(options["Rule"]);
-
 	seedCells(cells);
-
 	generateCells(cells, ruleset);
-
-	background(255);
 	drawCells(cells);
 }
 
@@ -93,8 +80,6 @@ function seedCells(cells) {
 	for (let i = 0; i < arrayWidth(); i++) {
 		cells[0][i] = 0;
 	}
-
-
 	if (options["Impulse"]) {
 		for (let i = 0; i < arrayWidth(); i++) {
 			// let middle = floor(arrayWidth());
@@ -103,14 +88,12 @@ function seedCells(cells) {
 			cells[0][middle] = 1;
 		}
 	}
-
 	if (options["Random"]) {
 		for (let i = 0; i < options["Random amount"] * options["Random amount"] * arrayWidth(); i++) {
 			let x = floor(random(arrayWidth() + 1));
 			cells[0][x] = 1;
 		}
 	}
-
 	for (let j = 1; j < arrayHeight(); j++) {
 		cells[j] = [];
 		for (let i = 0; i < arrayWidth(); i++) {
@@ -118,7 +101,6 @@ function seedCells(cells) {
 		}
 	}
 }
-
 
 function generateCells(cells, ruleset) {
 	for (let j = 0; j < arrayHeight() - 1; j++) {
@@ -147,9 +129,6 @@ function generateCells(cells, ruleset) {
 		cells.push(next);
 	}
 
-
-
-
 	for (let j = 0; j < arrayHeight(); j++) {
 		for (let rotate = 0; rotate < Math.abs(options["Rotate"]); rotate++) {
 			if (options["Rotate"] < 0) {
@@ -162,7 +141,6 @@ function generateCells(cells, ruleset) {
 		}
 	}
 }
-
 
 function binaryArray(n) {
 	return Array.from(("00000000" + n.toString(2)).slice(-8)).map(function (string) {
@@ -239,37 +217,32 @@ function keyPressed() {
 	if (keyCode === 190 && options["Random amount"] < 0.95) {
 		options["Random amount"] += 0.05;
 	}
+	if (keyCode === RETURN) {
+		save(filename() + ".svg");
+	}
 }
-
 
 function drawCells(cells) {
 	strokeWeight(options["Stroke weight"]);
 	noFill();
-
 	for (let j = 0; j < arrayHeight(); j++) {
 		for (let i = 0; i < arrayWidth(); i++) {
-
 			if (cells[j][i] === 1) {
-
 				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + i * cellWidth();
 				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + j * cellHeight();
-
 				if (options["Points"]) {
 					point(x, y);
 				}
-
 				if (options["Rects"]) {
 					rectMode(CENTER);
 					rect(x, y, cellWidth(), cellHeight());
 				}
-
 				if (options["Ellipses"]) {
 					ellipse(x, y, cellWidth(), cellHeight());
 				}
 			}
 		}
 	}
-
 	if (options["Square march"]) {
 		let next = [];
 		for (let i = 0; i < arrayWidth(); i++) {
