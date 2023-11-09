@@ -34,7 +34,8 @@ let cells = [];
 const gui = new dat.GUI();
 
 function setup() {
-	createCanvas(windowWidth, windowHeight, SVG);
+	// createCanvas(windowWidth, windowHeight, SVG);
+	createCanvas(windowWidth, windowHeight);
 
 	let setupFolder = gui.addFolder("Setup");
 	setupFolder.add(options, "Rule", 0, 255, 1).listen();
