@@ -1,3 +1,7 @@
+// Todo
+// Try ignoring particular cases when squaremarching.
+// Use a numbering system for options of cases similar to ECA rule numbering.
+
 let options = {
 	"Rule": 22,
 	"Second order": true,
