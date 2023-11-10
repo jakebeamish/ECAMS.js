@@ -169,6 +169,10 @@ function vLine(a, b) {
 	line(a.x, a.y, b.x, b.y);
 }
 
+function vLineSVG(a, b, svg) {
+	svg.line(a.x, a.y, b.x, b.y);
+}
+
 function keyPressed() {
 	if (keyCode === RIGHT_ARROW) {
 		options["Rotate"]++;
@@ -219,7 +223,8 @@ function keyPressed() {
 		options["Random amount"] += 0.05;
 	}
 	if (keyCode === RETURN) {
-		save(filename() + ".svg");
+		drawCellsSVG(cells);
+		// save(filename() + ".svg");
 	}
 }
 
@@ -314,6 +319,102 @@ function drawCells(cells) {
 			}
 		}
 	}
+}
+
+function drawCellsSVG(cells) {
+	let svg = createGraphics(windowWidth, windowHeight, SVG);
+
+	strokeWeight(options["Stroke weight"]);
+	noFill();
+	for (let j = 0; j < arrayHeight(); j++) {
+		for (let i = 0; i < arrayWidth(); i++) {
+			if (cells[j][i] === 1) {
+				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + i * cellWidth();
+				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + j * cellHeight();
+				if (options["Points"]) {
+					svg.point(x, y);
+				}
+				if (options["Rects"]) {
+					svg.rectMode(CENTER);
+					svg.rect(x, y, cellWidth(), cellHeight());
+				}
+				if (options["Ellipses"]) {
+					svg.ellipse(x, y, cellWidth(), cellHeight());
+				}
+			}
+		}
+	}
+	if (options["Square march"]) {
+		let next = [];
+		for (let i = 0; i < arrayWidth(); i++) {
+			next.push(0);
+		}
+		cells.unshift(next);
+		for (let j = 0; j < arrayHeight() - 1; j++) {
+			for (let i = 0; i < arrayWidth() - 1; i++) {
+				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + i * cellWidth();
+				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + j * cellHeight();
+
+				let a = createVector(x + cellWidth() * 0.5, y);
+				let b = createVector(x + cellWidth(), y + cellHeight() * 0.5);
+				let c = createVector(x + cellWidth() * 0.5, y + cellHeight());
+				let d = createVector(x, y + cellHeight() * 0.5);
+
+				let state = getState(cells[j][i], cells[j][i + 1], cells[j + 1][i + 1], cells[j + 1][i]);
+
+				switch (state) {
+					case 0:
+						// line(d, b);
+						break;
+					case 1:
+						vLineSVG(c, d, svg);
+						break;
+					case 2:
+						vLineSVG(b, c, svg);
+						break;
+					case 3:
+						vLineSVG(b, d, svg);
+						break;
+					case 4:
+						vLineSVG(a, b, svg);
+						break;
+					case 5:
+						vLineSVG(a, d, svg);
+						vLineSVG(b, c, svg);
+						break;
+					case 6:
+						vLineSVG(a, c, svg);
+						break;
+					case 7:
+						vLineSVG(a, d, svg);
+						break;
+					case 8:
+						vLineSVG(a, d, svg);
+						break;
+					case 9:
+						vLineSVG(a, c, svg);
+						break;
+					case 10:
+						vLineSVG(a, b, svg);
+						vLineSVG(c, d, svg);
+						break;
+					case 11:
+						vLineSVG(a, b, svg);
+						break;
+					case 12:
+						vLineSVG(b, d, svg);
+						break;
+					case 13:
+						vLineSVG(b, c, svg);
+						break;
+					case 14:
+						vLineSVG(c, d, svg);
+						break;
+				}
+			}
+		}
+	}
+	svg.save(filename() + ".svg");
 }
 
 // https://en.wikipedia.org/wiki/Elementary_cellular_automaton
