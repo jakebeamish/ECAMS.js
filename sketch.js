@@ -20,7 +20,7 @@ let options = {
 
 function filename() {
 
-return `rule${options["Rule"]}${options["Second order"]? "R" : ""}_seed${options["Seed"]}_offset${options["Offset"]}_rotate${options["Rotate"]}_${options["Impulse"] ? "I" : "R:" + options["Random amount"]}_${options["Cell width"]}x${options["Cell height"]}_${options["Array width"]}x${options["Array height"]}_${options["Points"] ? "points_" : ""}${options["Rects"] ? "rects_" : ""}${options["Ellipses"] ? "ellipses_" : ""}${options["Square march"] ? "square_marched" : ""}`;
+	return `rule${options["Rule"]}${options["Second order"] ? "R" : ""}_seed${options["Seed"]}_offset${options["Offset"]}_rotate${options["Rotate"]}_${options["Impulse"] ? "I" : "R:" + options["Random amount"]}_${options["Cell width"]}x${options["Cell height"]}_${options["Array width"]}x${options["Array height"]}_${options["Points"] ? "points_" : ""}${options["Rects"] ? "rects_" : ""}${options["Ellipses"] ? "ellipses_" : ""}${options["Square march"] ? "square_marched" : ""}`;
 
 }
 
