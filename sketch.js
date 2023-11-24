@@ -1,7 +1,3 @@
-// Todo
-// Try ignoring particular cases when squaremarching.
-// Use a numbering system for options of cases similar to ECA rule numbering.
-
 let options = {
 	"Rule": 73,
 	// 22, 54, 73, 167
@@ -22,12 +18,6 @@ let options = {
 	"Ellipses": false,
 	"Square march": true,
 	"Border": false
-}
-
-function filename() {
-
-	return `rule${options["Rule"]}${options["Second order"] ? "R" : ""}_seed${options["Seed"]}_offset${options["Offset"]}_rotate${options["Rotate"]}_${options["Impulse"] ? "I" : "R:" + options["Random amount"]}_${options["Cell width"]}x${options["Cell height"]}_${options["Array width"]}x${options["Array height"]}_${options["Points"] ? "points_" : ""}${options["Rects"] ? "rects_" : ""}${options["Ellipses"] ? "ellipses_" : ""}${options["Square march"] ? "square_marched" : ""}`;
-
 }
 
 const cellWidth = () => options["Cell width"];
@@ -87,7 +77,6 @@ function seedCells(cells) {
 	}
 	if (options["Impulse"]) {
 		for (let i = 0; i < arrayWidth(); i++) {
-			// let middle = floor(arrayWidth());
 			cells[0][i] = 0;
 			let middle = floor(arrayWidth() * 0.5);
 			cells[0][middle] = 1;
@@ -175,62 +164,6 @@ function vLine(a, b) {
 
 function vLineSVG(a, b, svg) {
 	svg.line(a.x, a.y, b.x, b.y);
-}
-
-function keyPressed() {
-	if (keyCode === RIGHT_ARROW) {
-		options["Rotate"]++;
-	}
-	if (keyCode === LEFT_ARROW) {
-		options["Rotate"]--;
-	}
-	if (keyCode === DOWN_ARROW) {
-		options["Offset"]++;
-	}
-	if (keyCode === UP_ARROW && options["Offset"] > 0) {
-		options["Offset"]--;
-	}
-	if (keyCode === 83) {
-		// 'S'
-		options["Seed"] = floor(random(10000));
-	}
-	if (keyCode === 79) {
-		// 'o'
-		options["Second order"] = !options["Second order"];
-	}
-	if (keyCode === 81) {
-		// 'q'
-		options["Square march"] = !options["Square march"];
-	}
-	if (keyCode === 80) {
-		// 'p'
-		options["Points"] = !options["Points"];
-	}
-	if (keyCode === 69) {
-		// 'e'
-		options["Ellipses"] = !options["Ellipses"];
-	}
-	if (keyCode === 82) {
-		// 'r'
-		options["Rects"] = !options["Rects"];
-	}
-	if (keyCode === 73) {
-		// 'i'
-		options["Impulse"] = !options["Impulse"];
-		options["Random"] = !options["Random"];
-	}
-	if (keyCode === 188 && options["Random amount"] > 0.05) {
-		// ','
-		options["Random amount"] -= 0.05;
-	}
-	if (keyCode === 190 && options["Random amount"] < 0.95) {
-		// '.'
-		options["Random amount"] += 0.05;
-	}
-	if (keyCode === 68) {
-		// 'd'
-		drawCellsSVG(cells);
-	}
 }
 
 function drawCells(cells) {
@@ -387,13 +320,25 @@ function drawCellsSVG(cells) {
 		}
 	}
 	if (options["Square march"]) {
+
+		// First, add extra 0s around each edge of the cells array
+		// This closes off all the shapes made by the marching squares
+		
+		for (let a = 0; a < arrayWidth(); a++) {
+			cells[a].unshift(0);
+			cells[a].push(0);
+		}
+			
 		let next = [];
-		for (let i = 0; i < arrayWidth(); i++) {
+
+		for (let i = 0; i <= arrayWidth(); i++) {
 			next.push(0);
 		}
 		cells.unshift(next);
-		for (let j = 0; j < arrayHeight(); j++) {
-			for (let i = 0; i < arrayWidth(); i++) {
+		cells.push(next);
+
+		for (let j = 0; j <= arrayHeight() + 1; j++) {	
+			for (let i = 0; i <= arrayWidth() + 1; i++) {
 				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + (i * cellWidth());
 				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + (j * cellHeight());
 
@@ -459,4 +404,64 @@ function drawCellsSVG(cells) {
 	svg.save(filename() + ".svg");
 }
 
-// https://en.wikipedia.org/wiki/Elementary_cellular_automaton
+function filename() {
+	// returns a filename that looks like "rule76R_seed23_offset0_rotate0_R_0.3_3x3_200x200_square_marched.svg"
+	return `rule${options["Rule"]}${options["Second order"] ? "R" : ""}_seed${options["Seed"]}_offset${options["Offset"]}_rotate${options["Rotate"]}_${options["Impulse"] ? "I" : "R:" + options["Random amount"]}_${options["Cell width"]}x${options["Cell height"]}_${options["Array width"]}x${options["Array height"]}_${options["Points"] ? "points_" : ""}${options["Rects"] ? "rects_" : ""}${options["Ellipses"] ? "ellipses_" : ""}${options["Square march"] ? "square_marched" : ""}`;
+}
+
+function keyPressed() {
+	// keyboard shortcuts
+	if (keyCode === RIGHT_ARROW) {
+		options["Rotate"]++;
+	}
+	if (keyCode === LEFT_ARROW) {
+		options["Rotate"]--;
+	}
+	if (keyCode === DOWN_ARROW) {
+		options["Offset"]++;
+	}
+	if (keyCode === UP_ARROW && options["Offset"] > 0) {
+		options["Offset"]--;
+	}
+	if (keyCode === 83) {
+		// 'S'
+		options["Seed"] = floor(random(10000));
+	}
+	if (keyCode === 79) {
+		// 'o'
+		options["Second order"] = !options["Second order"];
+	}
+	if (keyCode === 81) {
+		// 'q'
+		options["Square march"] = !options["Square march"];
+	}
+	if (keyCode === 80) {
+		// 'p'
+		options["Points"] = !options["Points"];
+	}
+	if (keyCode === 69) {
+		// 'e'
+		options["Ellipses"] = !options["Ellipses"];
+	}
+	if (keyCode === 82) {
+		// 'r'
+		options["Rects"] = !options["Rects"];
+	}
+	if (keyCode === 73) {
+		// 'i'
+		options["Impulse"] = !options["Impulse"];
+		options["Random"] = !options["Random"];
+	}
+	if (keyCode === 188 && options["Random amount"] > 0.05) {
+		// ','
+		options["Random amount"] -= 0.05;
+	}
+	if (keyCode === 190 && options["Random amount"] < 0.95) {
+		// '.'
+		options["Random amount"] += 0.05;
+	}
+	if (keyCode === 68) {
+		// 'd'
+		drawCellsSVG(cells);
+	}
+}
