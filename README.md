@@ -35,3 +35,4 @@ After downloading an image, I use [`vpype`](https://github.com/abey79/vpype) to 
 ### TODO
 - Implement dark mode
 - Intefere with the marching squares
+- Clean up the code (...)
