@@ -3,6 +3,8 @@
 
 This is a small web application written in JavaScript for generating line-based images of [Elementary Cellular Automata](https://en.wikipedia.org/wiki/Elementary_cellular_automaton) using [Marching Squares](https://en.wikipedia.org/wiki/Marching_squares).
 
+![Screenshot of the web application](/images/screenshot.png)
+
 The image is drawn using [p5.js](), and can be downloaded as an SVG (made using [Zenozeng's p5.js-svg runtime](https://zenozeng.github.io/p5.js-svg/)).
 
 It has a simple [dat.GUI](https://github.com/dataarts/dat.gui) interface and some keyboard shortcuts for interacting with the app.
