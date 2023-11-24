@@ -3,7 +3,8 @@
 // Use a numbering system for options of cases similar to ECA rule numbering.
 
 let options = {
-	"Rule": 22,
+	"Rule": 73,
+	// 22, 54, 73, 167
 	"Second order": true,
 	"Seed": 23,
 	"Offset": 0,
@@ -11,8 +12,8 @@ let options = {
 	"Impulse": false,
 	"Random": true,
 	"Random amount": 0.3,
-	"Cell width": 4,
-	"Cell height": 4,
+	"Cell width": 3,
+	"Cell height": 3,
 	"Array width": 200,
 	"Array height": 200,
 	"Stroke weight": 1,
@@ -20,6 +21,7 @@ let options = {
 	"Rects": false,
 	"Ellipses": false,
 	"Square march": true,
+	"Border": false
 }
 
 function filename() {
@@ -38,11 +40,10 @@ let cells = [];
 const gui = new dat.GUI();
 
 function setup() {
-	// createCanvas(windowWidth, windowHeight, SVG);
 	createCanvas(windowWidth, windowHeight);
 
 	let setupFolder = gui.addFolder("Setup");
-	setupFolder.add(options, "Rule", 0, 255, 1).listen();
+	setupFolder.add(options, "Rule", 0, 255, 1);
 	setupFolder.add(options, "Second order").listen();
 	setupFolder.add(options, "Seed", 0, 9999, 1).listen();
 	setupFolder.add(options, "Offset", 0, 999, 1).listen();
@@ -50,7 +51,6 @@ function setup() {
 	setupFolder.add(options, "Impulse").listen();
 	setupFolder.add(options, "Random").listen();
 	setupFolder.add(options, "Random amount", 0, 1).listen();
-
 
 	let sizeFolder = gui.addFolder("Size")
 	sizeFolder.add(options, "Cell width", 1, 20, 1);
@@ -64,13 +64,13 @@ function setup() {
 	drawFolder.add(options, "Rects").listen();
 	drawFolder.add(options, "Ellipses").listen();
 	drawFolder.add(options, "Square march").listen();
+	drawFolder.add(options, "Border").listen();
 
 	cells = [];
 }
 
 function draw() {
 	clear();
-	// page.drawingContext.__clearCanvas();
 	background(255);
 	cells = [];
 	randomSeed(options["Seed"]);
@@ -194,8 +194,8 @@ function keyPressed() {
 		// 'S'
 		options["Seed"] = floor(random(10000));
 	}
-	if (keyCode === 50) {
-		// '2'
+	if (keyCode === 79) {
+		// 'o'
 		options["Second order"] = !options["Second order"];
 	}
 	if (keyCode === 81) {
@@ -224,16 +224,29 @@ function keyPressed() {
 		options["Random amount"] -= 0.05;
 	}
 	if (keyCode === 190 && options["Random amount"] < 0.95) {
+		// '.'
 		options["Random amount"] += 0.05;
 	}
-	if (keyCode === RETURN) {
+	if (keyCode === 68) {
+		// 'd'
 		drawCellsSVG(cells);
-		// save(filename() + ".svg");
 	}
 }
 
 function drawCells(cells) {
 	strokeWeight(options["Stroke weight"]);
+
+	if (options["Border"]) {
+		push()
+		rectMode(NORMAL)
+		rect(
+			width / 2 - (cellWidth() * arrayWidth() * 0.5),
+			height / 2 - (cellHeight() * arrayHeight() * 0.5),
+			(cellWidth() * (arrayWidth() - 1)),
+			(cellHeight() * (arrayHeight()))
+		)
+		pop()
+	}
 	noFill();
 	for (let j = 0; j < arrayHeight(); j++) {
 		for (let i = 0; i < arrayWidth(); i++) {
@@ -254,15 +267,27 @@ function drawCells(cells) {
 		}
 	}
 	if (options["Square march"]) {
+
+		// First, add extra 0s around each edge of the cells array
+		// This closes off all the shapes made by the marching squares
+		
+		for (let a = 0; a < arrayWidth(); a++) {
+			cells[a].unshift(0);
+			cells[a].push(0);
+		}
+			
 		let next = [];
-		for (let i = 0; i < arrayWidth(); i++) {
+
+		for (let i = 0; i <= arrayWidth(); i++) {
 			next.push(0);
 		}
 		cells.unshift(next);
-		for (let j = 0; j < arrayHeight() - 1; j++) {
-			for (let i = 0; i < arrayWidth() - 1; i++) {
-				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + i * cellWidth();
-				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + j * cellHeight();
+		cells.push(next);
+
+		for (let j = 0; j <= arrayHeight(); j++) {
+			for (let i = 0; i <= arrayWidth(); i++) {
+				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + (i * cellWidth());
+				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + (j * cellHeight());
 
 				let a = createVector(x + cellWidth() * 0.5, y);
 				let b = createVector(x + cellWidth(), y + cellHeight() * 0.5);
@@ -330,6 +355,19 @@ function drawCellsSVG(cells) {
 
 	strokeWeight(options["Stroke weight"]);
 	noFill();
+
+	if (options["Border"]) {
+		push()
+		rectMode(NORMAL)
+		svg.rect(
+			width / 2 - (cellWidth() * arrayWidth() * 0.5),
+			height / 2 - (cellHeight() * arrayHeight() * 0.5),
+			(cellWidth() * (arrayWidth() - 1)),
+			(cellHeight() * (arrayHeight()))
+		)
+		pop()
+	}
+
 	for (let j = 0; j < arrayHeight(); j++) {
 		for (let i = 0; i < arrayWidth(); i++) {
 			if (cells[j][i] === 1) {
@@ -354,10 +392,10 @@ function drawCellsSVG(cells) {
 			next.push(0);
 		}
 		cells.unshift(next);
-		for (let j = 0; j < arrayHeight() - 1; j++) {
-			for (let i = 0; i < arrayWidth() - 1; i++) {
-				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + i * cellWidth();
-				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + j * cellHeight();
+		for (let j = 0; j < arrayHeight(); j++) {
+			for (let i = 0; i < arrayWidth(); i++) {
+				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + (i * cellWidth());
+				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + (j * cellHeight());
 
 				let a = createVector(x + cellWidth() * 0.5, y);
 				let b = createVector(x + cellWidth(), y + cellHeight() * 0.5);
