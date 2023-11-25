@@ -19,7 +19,7 @@ It has a simple [dat.GUI](https://github.com/dataarts/dat.gui) interface and som
 | Scroll through further iterations. | <kbd>↓</kbd> <kbd>↑</kbd> |
 | Toggle initial cell states between Impulse (only the centre cell is set to `1`) and Random (set a randomly distributed proportion of cells to `1`) | <kbd>i</kbd> |
 | Change the proportion of cells that will be randomly set to `1` | <kbd>,</kbd> <kbd>.</kbd> |
-| Download SVG | `Enter` |
+| Download SVG | <kbd>d</kbd> |
 
 ---
 
