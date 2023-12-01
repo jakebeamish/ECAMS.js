@@ -1,17 +1,19 @@
 let options = {
-	"Rule": 73,
-	// 22, 54, 73, 167
+	"Rule": 3,
+	// 18, 22, 48, 54, 73, 167
 	"Second order": true,
+	"ExperimentalA": false,
+	"ExperimentalB": true,
 	"Seed": 23,
-	"Offset": 0,
+	"Offset": 125,
 	"Rotate": 0,
-	"Impulse": false,
+	"Impulse": true,
 	"Random": true,
-	"Random amount": 0.3,
-	"Cell width": 3,
-	"Cell height": 3,
-	"Array width": 200,
-	"Array height": 200,
+	"Random amount": 0.5,
+	"Cell width": 2.5,
+	"Cell height": 2.5,
+	"Array width": 400,
+	"Array height": 250,
 	"Stroke weight": 1,
 	"Points": false,
 	"Rects": false,
@@ -20,10 +22,10 @@ let options = {
 	"Border": false
 }
 
-const cellWidth = () => options["Cell width"];
-const cellHeight = () => options["Cell height"];
-const arrayWidth = () => options["Array width"];
-const arrayHeight = () => options["Array height"];
+let cellWidth = () => options["Cell width"];
+let cellHeight = () => options["Cell height"];
+let arrayWidth = () => options["Array width"];
+let arrayHeight = () => options["Array height"];
 
 let cells = [];
 
@@ -31,10 +33,12 @@ const gui = new dat.GUI();
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
-
+	frameRate(1)
 	let setupFolder = gui.addFolder("Setup");
 	setupFolder.add(options, "Rule", 0, 255, 1);
 	setupFolder.add(options, "Second order").listen();
+	setupFolder.add(options, "ExperimentalA")
+	setupFolder.add(options, "ExperimentalB")
 	setupFolder.add(options, "Seed", 0, 9999, 1).listen();
 	setupFolder.add(options, "Offset", 0, 999, 1).listen();
 	setupFolder.add(options, "Rotate", 0, 999, 1).listen();
@@ -45,8 +49,8 @@ function setup() {
 	let sizeFolder = gui.addFolder("Size")
 	sizeFolder.add(options, "Cell width", 1, 20, 1);
 	sizeFolder.add(options, "Cell height", 1, 20, 1);
-	sizeFolder.add(options, "Array width", 1, 1000, 1);
-	sizeFolder.add(options, "Array height", 1, 1000, 1);
+	sizeFolder.add(options, "Array width", 1, 500, 1);
+	sizeFolder.add(options, "Array height", 1, 500, 1);
 
 	let drawFolder = gui.addFolder("Draw")
 	drawFolder.add(options, "Stroke weight", 1, 10);
@@ -72,7 +76,7 @@ function draw() {
 
 function seedCells(cells) {
 	cells[0] = [];
-	for (let i = 0; i < arrayWidth(); i++) {
+	for (let i = 0; i < options["Array width"]; i++) {
 		cells[0][i] = 0;
 	}
 	if (options["Impulse"]) {
@@ -95,7 +99,7 @@ function seedCells(cells) {
 		}
 	}
 }
-
+// let z;
 function generateCells(cells, ruleset) {
 	for (let j = 0; j < arrayHeight() - 1; j++) {
 		for (let i = 0; i < arrayWidth(); i++) {
@@ -103,7 +107,13 @@ function generateCells(cells, ruleset) {
 			let right = (i + arrayWidth() + 1) % arrayWidth();
 			cells[j + 1][i] = rules(cells[j][left], cells[j][i], cells[j][right], ruleset);
 			if (options["Second order"] && j > 1) {
-				cells[j + 1][i] = cells[j + 1][i] ^ cells[j - 1][i];
+				let z = 1;
+				if (options["ExperimentalA"]) {
+					z = floor(random(2))
+				}
+				cells[j + 1][i] = cells[j + z][i] ^ cells[j - 1][i];
+				// cells[j + 1][i] = cells[j+(floor(random(2)))][i] ^ cells[j - 1][i];
+
 			}
 		}
 	}
@@ -116,7 +126,12 @@ function generateCells(cells, ruleset) {
 			let right = (i + arrayWidth() + 1) % arrayWidth();
 			next[i] = rules(cells[j][left], cells[j][i], cells[j][right], ruleset);
 			if (options["Second order"]) {
-				next[i] = next[i] ^ cells[j - 1][i];
+			let z = 1;
+				if (options["ExperimentalB"]) {
+					
+					z = floor(random(2) + 3)
+				}
+				next[i] = next[i] ^ cells[j - z][i];
 			}
 		}
 		cells.shift();
@@ -171,7 +186,7 @@ function drawCells(cells) {
 
 	if (options["Border"]) {
 		push()
-		rectMode(NORMAL)
+		rectMode(CORNER)
 		rect(
 			width / 2 - (cellWidth() * arrayWidth() * 0.5),
 			height / 2 - (cellHeight() * arrayHeight() * 0.5),
@@ -203,24 +218,24 @@ function drawCells(cells) {
 
 		// First, add extra 0s around each edge of the cells array
 		// This closes off all the shapes made by the marching squares
-		
-		for (let a = 0; a < arrayWidth(); a++) {
+
+		for (let a = 0; a < options["Array height"]; a++) {
 			cells[a].unshift(0);
 			cells[a].push(0);
 		}
-			
+
 		let next = [];
 
-		for (let i = 0; i <= arrayWidth(); i++) {
+		for (let i = 0; i <= options["Array width"]; i++) {
 			next.push(0);
 		}
 		cells.unshift(next);
 		cells.push(next);
 
-		for (let j = 0; j <= arrayHeight(); j++) {
-			for (let i = 0; i <= arrayWidth(); i++) {
-				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + (i * cellWidth());
-				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + (j * cellHeight());
+		for (let j = 0; j <= options["Array height"]; j++) {
+			for (let i = 0; i <= options["Array width"]; i++) {
+				let x = width / 2 - (cellWidth() * options["Array width"]) / 2 + (i * cellWidth());
+				let y = height / 2 - (cellHeight() * options["Array height"]) / 2 + (j * cellHeight());
 
 				let a = createVector(x + cellWidth() * 0.5, y);
 				let b = createVector(x + cellWidth(), y + cellHeight() * 0.5);
@@ -323,12 +338,12 @@ function drawCellsSVG(cells) {
 
 		// First, add extra 0s around each edge of the cells array
 		// This closes off all the shapes made by the marching squares
-		
-		for (let a = 0; a < arrayWidth(); a++) {
+
+		for (let a = 0; a < arrayHeight(); a++) {
 			cells[a].unshift(0);
 			cells[a].push(0);
 		}
-			
+
 		let next = [];
 
 		for (let i = 0; i <= arrayWidth(); i++) {
@@ -337,7 +352,7 @@ function drawCellsSVG(cells) {
 		cells.unshift(next);
 		cells.push(next);
 
-		for (let j = 0; j <= arrayHeight() + 1; j++) {	
+		for (let j = 0; j <= arrayHeight() + 1; j++) {
 			for (let i = 0; i <= arrayWidth() + 1; i++) {
 				let x = width / 2 - (cellWidth() * arrayWidth()) / 2 + (i * cellWidth());
 				let y = height / 2 - (cellHeight() * arrayHeight()) / 2 + (j * cellHeight());
